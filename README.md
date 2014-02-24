@@ -15,3 +15,5 @@ An approach that resolves the issue is to set the session to AVAudioSessionCateg
 back audio, and AVAudioSessionCategoryRecord when recording.
 
 The app runs this way by default. It can be configured to reproduce the issue by setting IMPEDE_PLAYBACK to YES.
+
+You can follow this thread on [StackOverflow](https://stackoverflow.com/questions/21950584/ios-play-audio-success-on-simulator-but-fail-on-device/21971806).
