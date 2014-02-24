@@ -6,6 +6,9 @@
 //  Copyright (c) 2014 Matthew Loseke. All rights reserved.
 //
 
+/* Set this to YES to reproduce the playback issue */
+#define IMPEDE_PLAYBACK NO
+
 #import "ViewController.h"
 
 @interface ViewController ()
@@ -28,15 +31,19 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    //[AudioSessionManager setAudioSessionCategory:AVAudioSessionCategoryPlayAndRecord];
+
+    if (IMPEDE_PLAYBACK) {
+        [AudioSessionManager setAudioSessionCategory:AVAudioSessionCategoryPlayAndRecord];
+    }
 }
 
 #pragma mark Playback
 
 - (IBAction)play:(id)sender
 {
-    NSLog(@"play");
-    [AudioSessionManager setAudioSessionCategory:AVAudioSessionCategoryPlayback];
+    if (!IMPEDE_PLAYBACK) {
+        [AudioSessionManager setAudioSessionCategory:AVAudioSessionCategoryPlayback];
+    }
     
     NSError *audioError;
     player = [[AVAudioPlayer alloc] initWithContentsOfURL:[self recordedAudioURL] error:&audioError];
@@ -48,19 +55,21 @@
 
 - (IBAction)recordingForTouchDown:(id)sender
 {
-    NSLog(@"recording");
     [self setupAndPrepareToRecord];
     [recorder recordForDuration:30];
 }
 
 - (IBAction)endRecording:(id)sender
 {
-    NSLog(@"recording stop");
     [recorder stop];
 }
 
 - (void)setupAndPrepareToRecord
 {
+    if (!IMPEDE_PLAYBACK) {
+        [AudioSessionManager setAudioSessionCategory:AVAudioSessionCategoryRecord];
+    }
+
     NSDate *date = [[NSDate alloc] initWithTimeIntervalSinceNow:1];
     recordedAudioFileName = [NSString stringWithFormat:@"%@", date];
     
@@ -70,9 +79,7 @@
                                [NSString stringWithFormat:@"%@.m4a", [self recordedAudioFileName]],
                                nil];
     recordedAudioURL = [NSURL fileURLWithPathComponents:pathComponents];
-    
-    [AudioSessionManager setAudioSessionCategory:AVAudioSessionCategoryPlayAndRecord];
-    
+
     // settings for the recorder
     NSMutableDictionary *recordSetting = [[NSMutableDictionary alloc] init];
     [recordSetting setValue:[NSNumber numberWithInt:kAudioFormatMPEG4AAC] forKey:AVFormatIDKey];
